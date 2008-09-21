@@ -5,12 +5,6 @@
 /* 
 
 possibly show the icon associated with the user
-stop capitalization
--- this will require double data. a lot of systems
-end up being easier to design by storing displayed data separately
-from the data that is being analyzed, even though they are essentially
-the same data -- having quick access to normalized data is incredibly
-useful to a project
 
 
 once this is more solidified, sign up for a new twitter account
@@ -205,7 +199,7 @@ var Twautocomplete = {
           if(position > 2 && message[position-2] != ' ') {
           }
           else {
-            Twautocomplete.completeStartingWith(name_token, doc);
+            Twautocomplete.completeStartingWith(name_token);
           }
         }
         else {
@@ -215,7 +209,7 @@ var Twautocomplete = {
       }
       // really this needs to just use an XOR() http://www.howtocreate.co.uk/xor.html
       else if(message[position] == '@' && (position < 3 || message[position-1] == ' ')) {
-        Twautocomplete.completeStartingWith(name_token, doc); 
+        Twautocomplete.completeStartingWith(name_token); 
       }
       else if(message[position] != ' ') {
         name_token = message[position] + name_token;
@@ -326,9 +320,8 @@ Twautocomplete.debug("OK, event listener attached");
     }    
   },
   
-  completeStartingWith: function(partial_name, doc) {
+  completeStartingWith: function(partial_name) {
     partial_name = partial_name.toLowerCase();
-    Twautocomplete.debug(partial_name);
     
     if(partial_name.length==0) {
       Twautocomplete.debug("partial_name length 0");
@@ -347,13 +340,13 @@ Twautocomplete.debug("OK, event listener attached");
       screen_name = Twautocomplete.friends[idx].screen_name_normalized;
       
       
-      if(partial_name == screen_name.substr(0,partial_name.length)) {
+      if(partial_name == screen_name.substr(0, partial_name.length)) {
         // This puts names first, since names are more identifiabl
         Twautocomplete.debug('got a match with name '+name+', screen_name '+screen_name);
         tmp_idx = possibilities.push(Twautocomplete.friends[idx]);
         possibilities[tmp_idx-1].match_type = "screen_name";
       }
-      else if(partial_name == name.substr(0,partial_name.length)) {
+      else if(partial_name == name.substr(0, partial_name.length)) {
         Twautocomplete.debug('got a match with name '+name+', screen_name '+screen_name);
         tmp_idx = possibilities.push(Twautocomplete.friends[idx]);
         possibilities[tmp_idx-1].match_type = "name";
@@ -416,9 +409,6 @@ Twautocomplete.debug("OK, event listener attached");
         else {
           li.innerHTML += " (" + possibilities[i].name +")";
         }
-        
-        
-        //li.innerHTML += " (" + "<strong>"+possibilities[i].name.substr(0, partial_name.length)+"</strong>" + possibilities[i].name.substr(partial_name.length) + ")";
       }
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
@@ -440,7 +430,11 @@ Twautocomplete.debug("OK, event listener attached");
 
 
 function Twautocomplete_page_watcher() { 
+  // If people are cookied in, load their friends on browser load
+  // otherwise monitor for a twitter url
+  Twautocomplete.getUserFriends(1); 
   gBrowser.addEventListener("load", Twautocomplete.onPageLoad, true); 
+  gBrowser.addEventListener("focus", Twautocomplete.onPageLoad, true);
 }
 
 // Trying to not use an object's method as the callback,
