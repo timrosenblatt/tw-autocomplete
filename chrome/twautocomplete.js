@@ -4,35 +4,23 @@
 
 /* 
 
-TEXT = $('status').value
-
-if the last character of TEXT is an "@" or the last two are "d ",
-add a "dropdown" or search div thing to the page, right around
-the text box.
-
-maybe just do unbroken characters after the @hfif or the 'd xxx' that way even if they
-start typing it will catch up
-
 possibly show the icon associated with the user
-
-whenever a page loads at twitter.com, (and the contact list hasn't yet loaded)
- attempt to load the default
-url for the people the user is following. if error is detected,
-just silently fail
-
-let people type the person's name, and also the person's twittername
-
-
-if a success is detected, store the contact list (to prevent future loads)
+stop capitalization
+-- this will require double data. a lot of systems
+end up being easier to design by storing displayed data separately
+from the data that is being analyzed, even though they are essentially
+the same data -- having quick access to normalized data is incredibly
+useful to a project
 
 
-http://twitter.com/statuses/friends.json?lite=true
-http://twitter.com/statuses/friends.json?lite=true&page=2
-http://twitter.com/statuses/friends.json?lite=true&page=3
-works when logged in
-basically, keep loading until the response is an empty
-array, that means all the users have been loaded
+once this is more solidified, sign up for a new twitter account
+and add tons and tons of people to benchmark it a bit more. post
+a few messages from the account to say that peoplep shouldn't follow
+me back, i just need to add lots of contacts so i can benchmark
+my autocomplete plugin for twitter
+
 */
+
 var Twautocomplete = {
 
   // If the performance gets slow, both arrays of users
@@ -70,15 +58,117 @@ var Twautocomplete = {
       }
       else if(Twautocomplete.isTwitterURL(doc.location.toString())) {
         Twautocomplete.debug("OK, About to attach event listener");
-        doc.getElementById('status').addEventListener("keypress", Twautocomplete.monitorWindow, true); 
-        Twautocomplete.debug("OK, event listener attached");
-        //doc.twitter_monitor = setTimeout(function() { Twautocomplete.monitorWindow(doc); }, 1000);
+        doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+        doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
+        
+        Twautocomplete.debug("OK, event listeners attached");
       }
     }
   },
   
+  getSelectedIndex: function () {
+    var doc = gBrowser.selectedBrowser.contentDocument;
+    var items = doc.getElementById('twautocomplete_possibilities').childNodes;
+    
+    for(var i=0; i < items.length; i++) {
+      if(items[i].getAttribute('style') != '') {
+        return i;
+      }
+    }
+  },
+  
+  setSelectedIndex: function (index) {
+    Twautocomplete.debug("setSelectedIndex "+index);
+    
+    var doc = gBrowser.selectedBrowser.contentDocument;
+    var items = doc.getElementById('twautocomplete_possibilities').childNodes;
+    
+    for(var i=0; i < items.length; i++) {
+      items[i].setAttribute('style', '');
+      Twautocomplete.debug(items[i].getAttribute('style'));
+    }
+    
+    items[index].setAttribute('style','background-color:#ddd;');
+    Twautocomplete.debug("setSelectedIndex finished");
+  },
+  
+  fillFromIndex: function(index) {
+    var doc = gBrowser.selectedBrowser.contentDocument;
+    var items = doc.getElementById('twautocomplete_possibilities').childNodes;
+    
+    for(var i=0; i < items.length; i++) {
+      if(items[i].getAttribute('style') != '') {
+        var e = doc.createEvent('MouseEvents');
+        e.initEvent('click', true, true)
+        items[i].dispatchEvent(e);
+        
+        
+//        doc.getElementById('status').value += items[i].getAttribute('screen_name') + ' '
+        return true;
+      }
+    }
+  },
+  
+  onKeyDown: function(event) {
+    Twautocomplete.debug("-- onKeyDown --");
+    var TAB = 9;
+    var ENTER = 13;
+    var ARROW_UP = 38;
+    var ARROW_DOWN = 40;
+    
+    // the tab wasn't working
+    // seems like it might have to be on
+    // keydown, and not keyup?
+    if(event.keyCode == TAB || event.keyCode == ENTER) {
+      Twautocomplete.debug("tab or enter");
+     
+      var selected = Twautocomplete.getSelectedIndex();
+      Twautocomplete.fillFromIndex(selected);
+      
+     
+      event.stopPropagation();
+      event.preventDefault();
+              
+      Twautocomplete.debug('eventstop complete');
+      return false;
+    }
+    else if(event.keyCode == ARROW_UP) {
+      var selected = Twautocomplete.getSelectedIndex();
+      Twautocomplete.debug("up -- selected is "+selected);
+      
+      if(selected > 0) {
+        Twautocomplete.setSelectedIndex(selected-1);
+      }
+
+      event.stopPropagation();
+      event.preventDefault();
+                    
+      Twautocomplete.debug('eventstop complete');
+      return false;
+    }
+    else if(event.keyCode == ARROW_DOWN) {
+      Twautocomplete.debug("down");
+      var items = gBrowser.selectedBrowser.contentDocument.getElementById('twautocomplete_possibilities').childNodes;
+      var selected = Twautocomplete.getSelectedIndex();
+      Twautocomplete.debug("down selected is "+selected + " and items.length is "+items.length);
+      
+      if(selected < items.length-1) {
+        Twautocomplete.debug('about to set index');
+        Twautocomplete.setSelectedIndex(selected+1);
+      }
+
+      event.stopPropagation();
+      event.preventDefault();
+                   
+      Twautocomplete.debug('eventstop complete');
+      return false;
+    }  
+  },
+  
   monitorWindow: function(doc) {
     Twautocomplete.debug("monitorWindow!");
+    
+    
     var input = doc.originalTarget;
     
     // doc = doc || gBrowser.selectedBrowser.contentDocument; 
@@ -210,7 +300,8 @@ var Twautocomplete = {
             
 //            setTimeout(function() { Twautocomplete.monitorWindow(); }, 1000);
 Twautocomplete.debug("OK, About to attach event listener");
-gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keypress", Twautocomplete.monitorWindow, true); 
+gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
 Twautocomplete.debug("OK, event listener attached");
 
             return; // This covers when there are none
@@ -219,10 +310,12 @@ Twautocomplete.debug("OK, event listener attached");
           var name, screen_name;
 
           for(var i=0; i < response.length; i++) {
-            name        = response[i].name || '';
-            screen_name = response[i].screen_name || '';
+            name                   = response[i].name || '';
+            name_normalized        = name.toLowerCase();
+            screen_name            = response[i].screen_name || '';
+            screen_name_normalized = screen_name.toLowerCase();
 
-            Twautocomplete.friends.push({"name": name, "screen_name": screen_name});
+            Twautocomplete.friends.push({"name": name, "name_normalized": name_normalized, "screen_name": screen_name, "screen_name_normalized": screen_name_normalized});
           }
 
           // Sort of tail-recursive. I wonder what would happen with
@@ -313,10 +406,35 @@ Twautocomplete.debug("OK, event listener attached");
     
     for(var i = 0; i < possibilities.length; i++) {
       li = doc.createElement('li');
-      li.innerHTML = "<strong>"+possibilities[i].screen_name.substr(0,partial_name.length)+"</strong>" + possibilities[i].screen_name.substr(partial_name.length);
-      if(possibilities[i].screen_name != possibilities[i].name) {
-        li.innerHTML += " (" + "<strong>"+possibilities[i].name.substr(0, partial_name.length)+"</strong>" + possibilities[i].name.substr(partial_name.length) + ")";
+      
+      if(i==0) {
+        li.setAttribute('style', 'background-color:#ddd;');
       }
+      else {
+        li.setAttribute('style', '');
+      }
+      
+      if(possibilities[i].screen_name.substr(0,partial_name.length) == partial_name) {
+        li.innerHTML = "<strong>"+possibilities[i].screen_name.substr(0,partial_name.length)+"</strong>" + possibilities[i].screen_name.substr(partial_name.length);
+      }
+      else {
+        li.innerHTML = possibilities[i].screen_name;
+      }
+    
+      if(possibilities[i].screen_name != possibilities[i].name) {
+        
+        if(possibilities[i].name.substr(0,partial_name.length) == partial_name) {
+          li.innerHTML += " (<strong>"+possibilities[i].name.substr(0,partial_name.length)+"</strong>" + possibilities[i].name.substr(partial_name.length) + ")";
+        }
+        else {
+          li.innerHTML += " (" + possibilities[i].name +")";
+        }
+        
+        
+        //li.innerHTML += " (" + "<strong>"+possibilities[i].name.substr(0, partial_name.length)+"</strong>" + possibilities[i].name.substr(partial_name.length) + ")";
+      }
+      
+      li.setAttribute('screen_name', possibilities[i].screen_name);
       
       li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' ";');
       ul.appendChild(li);
