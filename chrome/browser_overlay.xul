@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- Hi! And, thanks for checking out my code. What do you think?
+     Drop me a line: tim@timrosenblatt.com -->
+  <overlay id="TwautocompleteOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+  <script type='application/x-javascript'>
+    if(!Firebug || !Firebug.Console || !Firebug.Console.log) {
+		    var Firebug = [];
+		    Firebug.Console = [];
+		    Firebug.Console.log = function () {}
+		 }
+  </script>
+  
+  <script type='application/x-javascript' src='chrome://twautocomplete/content/date_format.js' />
+  <script type='application/x-javascript' src='chrome://twautocomplete/content/json2.js' />
+	<script type='application/x-javascript' src='chrome://twautocomplete/content/twautocomplete.js' /> 
+</overlay>

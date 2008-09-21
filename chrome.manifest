@@ -1,0 +1,13 @@
+# Firefox 2 does not support mixed case packagenames, so Twautocomplete will not work. FF3 supports this
+# http://developer.mozilla.org/en/Chrome_Registration
+content  twautocomplete  chrome/
+
+# Firefox 2 will allow web pages to access chrome:// (which is a safety concern). However, FF3 blocks
+# chrome:// by default, but allows us to override this setting
+# Gotta put both lines in here, because the contentaccessible=yes will cause FF2 to ignore the whole line
+content  twautocomplete-public  public/
+content  twautocomplete-public  public/  contentaccessible=yes
+
+overlay   chrome://browser/content/browser.xul   chrome://twautocomplete/content/browser_overlay.xul
+
+

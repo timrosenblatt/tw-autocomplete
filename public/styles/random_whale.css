@@ -1,0 +1,39 @@
+/* Hi! And, thanks for checking out my code. What do you think?
+   Drop me a line: tim@timrosenblatt.com */
+
+#fail_whale_container {
+  z-index: 2147483645;
+}
+
+#fail_whale_container a {
+  color:#4477DD !important;
+}
+
+#random-whale-ext-tint {
+  -moz-opacity:.80; 
+  background-color:#000; 
+  top:0; 
+  left:0; 
+  height:100%; 
+  width:100%; 
+  position:fixed;
+    z-index: 2147483646;
+}
+
+#random-whale-ext-image-wrapper {
+  top:0; 
+  left:0; 
+  height:100%; 
+  width:100%; 
+  position:fixed;
+  color:#fff;
+  font-size:20px;
+  text-align:center;
+    z-index: 2147483647;
+}
+
+#random-whale-ext-image {
+  margin:50px auto auto auto; 
+  display:block;
+  cursor:pointer;
+}
