@@ -203,27 +203,21 @@ var Twautocomplete = {
         if(message[position-1] && message[position-1] == 'd') {
           Twautocomplete.debug('we got a d');
           if(position > 2 && message[position-2] != ' ') {
-            Twautocomplete.debug('b');
           }
           else {
-            Twautocomplete.debug('c');
             Twautocomplete.completeStartingWith(name_token, doc);
           }
         }
         else {
-          Twautocomplete.debug('d');
           Twautocomplete.showMatches([], ''); // Show no matches
-          Twautocomplete.debug('d2');
           return; // We hit an empty space, this current token has no chance of being a name
         }
       }
       // really this needs to just use an XOR() http://www.howtocreate.co.uk/xor.html
       else if(message[position] == '@' && (position < 3 || message[position-1] == ' ')) {
-        Twautocomplete.debug('f');
         Twautocomplete.completeStartingWith(name_token, doc); 
       }
       else if(message[position] != ' ') {
-        Twautocomplete.debug('e');
         name_token = message[position] + name_token;
       }
       else {
@@ -333,6 +327,7 @@ Twautocomplete.debug("OK, event listener attached");
   },
   
   completeStartingWith: function(partial_name, doc) {
+    partial_name = partial_name.toLowerCase();
     Twautocomplete.debug(partial_name);
     
     if(partial_name.length==0) {
@@ -341,16 +336,6 @@ Twautocomplete.debug("OK, event listener attached");
       return;
     }
     
-    /* These two arrays could be stored as a single array 
-    or maybe store the screen names indexed by real name,
-    etc...the way the data has to be read/written from kind of dictates
-    the structure that it's stored in. Also, I want an easy
-    way of preventing duplicate items from appearing in the autocomplete
-    
-    Structures basically come down
-    to "am i more often reading or writing to this structure?"*/
-    //[ {"name": "Tim Rosenblatt", "screen_name": "timrosenblatt"}, {"name": "Guido van Rossum", "screen_name": "gvanrossum"}, 
-    //friend_real_names: [], 
     var name, screen_name, possibilities = [], tmp_idx;
     
     for(idx in Twautocomplete.friends) {
@@ -358,8 +343,8 @@ Twautocomplete.debug("OK, event listener attached");
         continue;
       }
       
-      name = Twautocomplete.friends[idx].name;
-      screen_name = Twautocomplete.friends[idx].screen_name;
+      name        = Twautocomplete.friends[idx].name_normalized;
+      screen_name = Twautocomplete.friends[idx].screen_name_normalized;
       
       
       if(partial_name == screen_name.substr(0,partial_name.length)) {
@@ -414,16 +399,18 @@ Twautocomplete.debug("OK, event listener attached");
         li.setAttribute('style', '');
       }
       
-      if(possibilities[i].screen_name.substr(0,partial_name.length) == partial_name) {
+      if(possibilities[i].screen_name_normalized.substr(0,partial_name.length) == partial_name) {
+        // If it's the screen name that matches
         li.innerHTML = "<strong>"+possibilities[i].screen_name.substr(0,partial_name.length)+"</strong>" + possibilities[i].screen_name.substr(partial_name.length);
       }
       else {
+        // Just pass it through untouched
         li.innerHTML = possibilities[i].screen_name;
       }
     
       if(possibilities[i].screen_name != possibilities[i].name) {
         
-        if(possibilities[i].name.substr(0,partial_name.length) == partial_name) {
+        if(possibilities[i].name_normalized.substr(0,partial_name.length) == partial_name) {
           li.innerHTML += " (<strong>"+possibilities[i].name.substr(0,partial_name.length)+"</strong>" + possibilities[i].name.substr(partial_name.length) + ")";
         }
         else {
