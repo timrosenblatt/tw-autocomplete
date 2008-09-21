@@ -51,13 +51,21 @@ var Twautocomplete = {
         Twautocomplete.getUserFriends(1);
       }
       else if(Twautocomplete.isTwitterURL(doc.location.toString())) {
-        Twautocomplete.debug("OK, About to attach event listener");
-        doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
-        doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
         
-        Twautocomplete.debug("OK, event listeners attached");
+        Twautocomplete.setListenersOnTextarea();
       }
     }
+  },
+  
+  setListenersOnTextarea: function () {
+    Twautocomplete.debug("OK, About to attach event listener");
+    var doc = gBrowser.selectedBrowser.contentDocument;
+    doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+    doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
+    
+    gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad);
+    
+    Twautocomplete.debug("OK, event listeners attached");
   },
   
   getSelectedIndex: function () {
@@ -182,7 +190,7 @@ var Twautocomplete = {
     
     // Do a quick return here, rather than wrap it
     // the whole thing in the if(condition) and force indents
-    if(!input.selectionStart || input.selectionStart == 0 ||  input.value == '') { 
+    if(!input.selectionStart || input.selectionStart == 0 ||  input.value == '' || input.value[input.selectionStart-1] == ' ') { 
       Twautocomplete.showMatches([], ''); // Show no matches
       return;                                         
     }
@@ -193,13 +201,12 @@ var Twautocomplete = {
     for(var position = input.selectionStart-1; position >= 0; position--) {
       Twautocomplete.debug('loop at position '+position +' and message[position] is "'+message[position]+'"');
       if(message[position] == ' ') {
-        Twautocomplete.debug('a');
         if(message[position-1] && message[position-1] == 'd') {
-          Twautocomplete.debug('we got a d');
           if(position > 2 && message[position-2] != ' ') {
           }
           else {
             Twautocomplete.completeStartingWith(name_token);
+            break;
           }
         }
         else {
@@ -207,9 +214,9 @@ var Twautocomplete = {
           return; // We hit an empty space, this current token has no chance of being a name
         }
       }
-      // really this needs to just use an XOR() http://www.howtocreate.co.uk/xor.html
       else if(message[position] == '@' && (position < 3 || message[position-1] == ' ')) {
         Twautocomplete.completeStartingWith(name_token); 
+        break;
       }
       else if(message[position] != ' ') {
         name_token = message[position] + name_token;
@@ -287,23 +294,25 @@ var Twautocomplete = {
             else if (page > 1) { Twautocomplete.debug("This person is a low-level user"); }
             
 //            setTimeout(function() { Twautocomplete.monitorWindow(); }, 1000);
-Twautocomplete.debug("OK, About to attach event listener");
-gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
-gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
-Twautocomplete.debug("OK, event listener attached");
+            Twautocomplete.setListenersOnTextarea();
+// Twautocomplete.debug("OK, About to attach event listener");
+// gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+// gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
+// Twautocomplete.debug("OK, event listener attached");
 
             return; // This covers when there are none
           }
 
-          var name, screen_name;
+          var name, screen_name, profile_image_url;
 
           for(var i=0; i < response.length; i++) {
             name                   = response[i].name || '';
             name_normalized        = name.toLowerCase();
             screen_name            = response[i].screen_name || '';
             screen_name_normalized = screen_name.toLowerCase();
+            profile_image_url      = response[i].profile_image_url || '';
 
-            Twautocomplete.friends.push({"name": name, "name_normalized": name_normalized, "screen_name": screen_name, "screen_name_normalized": screen_name_normalized});
+            Twautocomplete.friends.push({"name": name, "name_normalized": name_normalized, "screen_name": screen_name, "screen_name_normalized": screen_name_normalized, "profile_image_url": profile_image_url});
           }
 
           // Sort of tail-recursive. I wonder what would happen with
@@ -394,7 +403,7 @@ Twautocomplete.debug("OK, event listener attached");
       
       if(possibilities[i].screen_name_normalized.substr(0,partial_name.length) == partial_name) {
         // If it's the screen name that matches
-        li.innerHTML = "<strong>"+possibilities[i].screen_name.substr(0,partial_name.length)+"</strong>" + possibilities[i].screen_name.substr(partial_name.length);
+        li.innerHTML = "<strong>" + possibilities[i].screen_name.substr(0,partial_name.length) + "</strong>" + possibilities[i].screen_name.substr(partial_name.length);
       }
       else {
         // Just pass it through untouched
@@ -410,6 +419,8 @@ Twautocomplete.debug("OK, event listener attached");
           li.innerHTML += " (" + possibilities[i].name +")";
         }
       }
+      
+      //li.innerHTML = "<img style='height:48px;width:48px;margin-left:4px;' src='"+possibilities[i].profile_image_url+"' /><span style='margin:4px;'>" + li.innerHTML + "</span>";
       
       li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
       
