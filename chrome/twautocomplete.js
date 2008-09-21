@@ -411,6 +411,8 @@ Twautocomplete.debug("OK, event listener attached");
         }
       }
       
+      li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
+      
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
       li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' ";');
@@ -419,7 +421,7 @@ Twautocomplete.debug("OK, event listener attached");
     
     ul.setAttribute('partial_name', partial_name);
     ul.setAttribute('id', 'twautocomplete_possibilities');
-    ul.setAttribute('style', 'text-align:left;position:absolute;background-color:#fff;');
+    ul.setAttribute('style', 'text-align:left;position:absolute;background-color:#fff;left:20px;border:1px solid #000;');
     
     doc.getElementById('status').parentNode.insertBefore(ul, doc.getElementById('status').nextSibling);
   },
