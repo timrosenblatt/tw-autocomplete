@@ -4,14 +4,40 @@
 
 /* 
 
+
+
+http://dean.edwards.name/weblog/2005/09/busted/
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+}
+MOTHERFUCKIN DOMContentLoaded WOOOO!
+
+
+scenarios
+
+- turn browser on and go to twitter from other page, logged in
+- turn browser on and twitter is home page, logged in
+- browser is running, open twitter in main tab, logged in
+- browser is running, open twitter in hidden tab, logged in
+
+- turn browser on and go to twitter from other page, not logged in
+- turn browser on and twitter is home page, not logged in
+- browser is running, open twitter in main tab, not logged in
+- browser is running, open twitter in hidden tab, not logged in
+
+
 possibly show the icon associated with the user
 
 
-once this is more solidified, sign up for a new twitter account
-and add tons and tons of people to benchmark it a bit more. post
-a few messages from the account to say that peoplep shouldn't follow
-me back, i just need to add lots of contacts so i can benchmark
-my autocomplete plugin for twitter
+add lots of error handling. when browsing twitter pages that don't have a status
+textarea on them, there's lots of erroring.
+
+get something coordinated with the focus event so that when twitter loads, it 
+will immediately work and won't have to wait on s3
+
+may have to start passing the doc events around again
+
+when someone cilcks the dropdown, fire a keypress event on the textarea so that the list will clear out
 
 */
 
@@ -24,6 +50,7 @@ var Twautocomplete = {
   
   // Hopefully Scoble doesn't start using this on his
   // 25k followers :D
+  self: this, // http://mikewest.org/archive/component-encapsulation-using-object-oriented-javascript
   friends: [], 
   
   init: function () {
@@ -168,21 +195,16 @@ var Twautocomplete = {
   },
   
   monitorWindow: function(doc) {
-    Twautocomplete.debug("monitorWindow!");
-    
+    Twautocomplete.debug("monitorWindow!");    
     
     var input = doc.originalTarget;
-    
-    // doc = doc || gBrowser.selectedBrowser.contentDocument; 
-    // 
+    //remove above line in next committ
     input = gBrowser.selectedBrowser.contentDocument.getElementById('status');
     
     if(typeof input == "undefined") {
       Twautocomplete.debug("input was undefined");
       return;
     }
-
-//    doc.twitter_monitor = setTimeout(function() { Twautocomplete.monitorWindow(doc); }, 1000);
     
     Twautocomplete.debug('Monitoring.. input.value is "'+input.value+'"');
     
@@ -234,6 +256,8 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
+    //return;
+    
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
   },
@@ -293,12 +317,7 @@ var Twautocomplete = {
             else if (page > 4) { Twautocomplete.debug("This person is a mild Twitter addict"); }
             else if (page > 1) { Twautocomplete.debug("This person is a low-level user"); }
             
-//            setTimeout(function() { Twautocomplete.monitorWindow(); }, 1000);
             Twautocomplete.setListenersOnTextarea();
-// Twautocomplete.debug("OK, About to attach event listener");
-// gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
-// gBrowser.selectedBrowser.contentDocument.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
-// Twautocomplete.debug("OK, event listener attached");
 
             return; // This covers when there are none
           }
@@ -420,9 +439,9 @@ var Twautocomplete = {
         }
       }
       
-      //li.innerHTML = "<img style='height:48px;width:48px;margin-left:4px;' src='"+possibilities[i].profile_image_url+"' /><span style='margin:4px;'>" + li.innerHTML + "</span>";
+      li.innerHTML = "<img style='height:24px;width:24px;position:relative;top:3px;left:4px;' src='"+possibilities[i].profile_image_url+"' /><span style='position:relative;top:-4px;left:8px;'>" + li.innerHTML + "</span>";
       
-      li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
+      //li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
@@ -445,9 +464,10 @@ var Twautocomplete = {
 function Twautocomplete_page_watcher() { 
   // If people are cookied in, load their friends on browser load
   // otherwise monitor for a twitter url
-  Twautocomplete.getUserFriends(1); 
-  gBrowser.addEventListener("load", Twautocomplete.onPageLoad, true); 
-  gBrowser.addEventListener("focus", Twautocomplete.onPageLoad, true);
+  Twautocomplete.getUserFriends(1);
+  
+  gBrowser.addEventListener("DOMContentLoaded", Twautocomplete.onPageLoad, true); 
+  //gBrowser.addEventListener("focus", Twautocomplete.onPageLoad, true);
 }
 
 // Trying to not use an object's method as the callback,
