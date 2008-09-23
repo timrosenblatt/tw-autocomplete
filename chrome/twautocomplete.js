@@ -148,7 +148,7 @@ var Twautocomplete = {
       Twautocomplete.debug("tab or enter");
      
       var selected = Twautocomplete.getSelectedIndex();
-      if(isNaN(selected) && selected == false) {
+      if(typeof(selected)=="boolean" && selected == false) {
         Twautocomplete.debug("abort -- no dropdown present");
         return;
       }
@@ -166,7 +166,7 @@ var Twautocomplete = {
       var selected = Twautocomplete.getSelectedIndex();
       Twautocomplete.debug("up -- selected is "+selected);
       
-      if(isNaN(selected) && selected == false) {
+      if(typeof(selected)=="boolean" && selected == false) {
         Twautocomplete.debug("abort -- no dropdown present");
         return;
       }
@@ -183,15 +183,16 @@ var Twautocomplete = {
     }
     else if(event.keyCode == ARROW_DOWN) {
       Twautocomplete.debug("down");
-      var items = gBrowser.selectedBrowser.contentDocument.getElementById('twautocomplete_possibilities').childNodes;
       var selected = Twautocomplete.getSelectedIndex();
-      Twautocomplete.debug("down selected is "+selected + " and items.length is "+items.length);
+      Twautocomplete.debug("down selected is "+selected);
       
-      if(isNaN(selected) && selected == false) {
+      if(typeof(selected)=="boolean" && selected == false) {
         Twautocomplete.debug("abort -- no dropdown present");
         return;
       }
       Twautocomplete.debug("continuing");
+      
+      var items = gBrowser.selectedBrowser.contentDocument.getElementById('twautocomplete_possibilities').childNodes;
       
       if(selected < items.length-1) {
         Twautocomplete.debug('about to set index');
@@ -266,7 +267,7 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
-//    return;
+   // return;
     
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
