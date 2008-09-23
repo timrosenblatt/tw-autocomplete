@@ -6,7 +6,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>twautocomplete-extension@timrosenblatt.com</em:id>
-    <em:version>0.8</em:version>
+    <em:version>1.0</em:version>
     <em:type>2</em:type>
 
     <!-- Target Application this extension can install into,

@@ -4,40 +4,7 @@
 
 /* 
 
-
-
-http://dean.edwards.name/weblog/2005/09/busted/
-if (document.addEventListener) {
-  document.addEventListener("DOMContentLoaded", init, false);
-}
-MOTHERFUCKIN DOMContentLoaded WOOOO!
-
-
-scenarios
-
-- turn browser on and go to twitter from other page, logged in
-- turn browser on and twitter is home page, logged in
-- browser is running, open twitter in main tab, logged in
-- browser is running, open twitter in hidden tab, logged in
-
-- turn browser on and go to twitter from other page, not logged in
-- turn browser on and twitter is home page, not logged in
-- browser is running, open twitter in main tab, not logged in
-- browser is running, open twitter in hidden tab, not logged in
-
-
-possibly show the icon associated with the user
-
-
-add lots of error handling. when browsing twitter pages that don't have a status
-textarea on them, there's lots of erroring.
-
-get something coordinated with the focus event so that when twitter loads, it 
-will immediately work and won't have to wait on s3
-
 may have to start passing the doc events around again
-
-when someone cilcks the dropdown, fire a keypress event on the textarea so that the list will clear out
 
 */
 
@@ -50,7 +17,7 @@ var Twautocomplete = {
   
   // Hopefully Scoble doesn't start using this on his
   // 25k followers :D
-  self: this, // http://mikewest.org/archive/component-encapsulation-using-object-oriented-javascript
+  //self: this, // http://mikewest.org/archive/component-encapsulation-using-object-oriented-javascript
   friends: [], 
   
   init: function () {
@@ -62,16 +29,8 @@ var Twautocomplete = {
     
     // http://developer.mozilla.org/En/Code_snippets/Tabbed_browser
     if (doc instanceof HTMLDocument) {
-      //var doc = event.originalTarget;
       if (doc.defaultView.frameElement) {
-        // Frame within a tab was loaded. doc should be the root document of
-        // the frameset. If you don't want do anything when frames/iframes
-        // are loaded in this web page, uncomment the following line:
         return;
-        // Find the root document:
-        //while (doc.defaultView.frameElement) {
-        //  doc=doc.defaultView.frameElement.ownerDocument;
-        //}
       }
       
       if(Twautocomplete.isTwitterURL(doc.location.toString()) && !Twautocomplete.areUserFriendsLoaded()) {
@@ -99,11 +58,23 @@ var Twautocomplete = {
   
   setListenersOnTextarea: function () {
     Twautocomplete.debug("OK, About to attach event listener");
-    var doc = gBrowser.selectedBrowser.contentDocument;
-    doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
-    doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
     
-    gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad, true);
+    try {
+      var doc = gBrowser.selectedBrowser.contentDocument;
+      doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+      doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
+    
+      gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad, true);
+    }
+    catch(e) {
+      //alert(e.message);
+      // About the only thing that can go wrong in here is $('status') not being
+      // available. If it doesn't, we can just return false. Basically, we were
+      // on a Twitter page that wasn't the message page, or Twitter has changed
+      // their layout drastically. Either way, it will be the same as if this
+      // extension didn't exist.
+      return false;
+    }
     
     Twautocomplete.debug("OK, event listeners attached");
   },
@@ -163,9 +134,6 @@ var Twautocomplete = {
     var ARROW_UP = 38;
     var ARROW_DOWN = 40;
     
-    // the tab wasn't working
-    // seems like it might have to be on
-    // keydown, and not keyup?
     if(event.keyCode == TAB || event.keyCode == ENTER) {
       Twautocomplete.debug("tab or enter");
      
@@ -215,9 +183,7 @@ var Twautocomplete = {
   monitorWindow: function(doc) {
     Twautocomplete.debug("monitorWindow!");    
     
-    var input = doc.originalTarget;
-    //remove above line in next committ
-    input = gBrowser.selectedBrowser.contentDocument.getElementById('status');
+    var input = gBrowser.selectedBrowser.contentDocument.getElementById('status');
     
     if(typeof input == "undefined") {
       Twautocomplete.debug("input was undefined");
@@ -387,7 +353,7 @@ var Twautocomplete = {
       
       
       if(partial_name == screen_name.substr(0, partial_name.length)) {
-        // This puts names first, since names are more identifiabl
+        // This puts names first, since names are more identifiable
         Twautocomplete.debug('got a match with name '+name+', screen_name '+screen_name);
         tmp_idx = possibilities.push(Twautocomplete.friends[idx]);
         possibilities[tmp_idx-1].match_type = "screen_name";
@@ -459,11 +425,10 @@ var Twautocomplete = {
       
       li.innerHTML = "<img style='height:24px;width:24px;margin-top:3px;margin-left:6px;float:left;' src='"+possibilities[i].profile_image_url+"' /><span style='display:block;margin:5px 6px 8px 40px;'>" + li.innerHTML + "</span>";
       
-      //li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
-      
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
-      li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
+//      li.setAttribute('onclick', '$("status").value  = $("status").value.substr(0, $("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
+      li.setAttribute('onclick', '$("status").value  = $("status").value.substr(0, $("status").selectionStart - '+partial_name.length+') + "'+possibilities[i].screen_name+' " + $("status").value.substr($("status").selectionStart); var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
       
       
       ul.appendChild(li);
@@ -487,12 +452,12 @@ function Twautocomplete_page_watcher() {
   Twautocomplete.getUserFriends(1);
   
   gBrowser.addEventListener("DOMContentLoaded", Twautocomplete.onPageLoad, true); 
-  //gBrowser.addEventListener("focus", Twautocomplete.onPageLoad, true);
 }
 
 // Trying to not use an object's method as the callback,
 // but the developer info has conflicting information under
-// the "Memory issues" section at bottom.
+// the "Memory issues" section at bottom. What's better
+// lambdas or object methods?
 // http://developer.mozilla.org/En/DOM/Element.addEventListener
 window.addEventListener("load", Twautocomplete_page_watcher, false);
 
