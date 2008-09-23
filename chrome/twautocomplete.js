@@ -79,7 +79,7 @@ var Twautocomplete = {
         Twautocomplete.getUserFriends(1);
       }
       else if(Twautocomplete.isTwitterURL(doc.location.toString())) {
-        
+        Twautocomplete.addCSSToPage(doc);
         Twautocomplete.setListenersOnTextarea();
       }
     }
@@ -129,7 +129,7 @@ var Twautocomplete = {
       items[i].setAttribute('class', Twautocomplete.getZebraClassByIndex(i));
     }
     
-    items[index].setAttribute('class','twautocomplete_selected');
+    items[index].setAttribute('class', Twautocomplete.getZebraClassByIndex(index) + ' twautocomplete_selected');
     Twautocomplete.debug("setSelectedIndex finished");
   },
   
@@ -463,7 +463,7 @@ var Twautocomplete = {
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
-      li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);');
+      li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
       
       
       ul.appendChild(li);

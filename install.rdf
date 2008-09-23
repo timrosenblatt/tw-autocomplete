@@ -20,7 +20,7 @@
     </em:targetApplication>
 
     <!-- Front End MetaData -->
-    <em:name>Twautocomplete</em:name>
+    <em:name>Tw-autocomplete</em:name>
     <em:description>Autocomplete for Twitter @-messages (By Tim Rosenblatt)</em:description>
     <em:creator>Tim Rosenblatt</em:creator>
     <em:homepageURL>http://www.timrosenblatt.com/</em:homepageURL>

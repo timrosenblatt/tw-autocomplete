@@ -1,5 +1,11 @@
-#twautocomplete_possibilities li.twautocomplete_selected {
-  background-color:rgb(120,120,120) !important;
+/* 
+ * The order of these CSS rules is important to create the highlighting
+ * effect, but also highlight when the mouse hovers over an li
+ *
+ */
+
+#twautocomplete_possibilities {
+  cursor:pointer;
 }
 
 #twautocomplete_possibilities li.twautocomplete_zebra_light {
@@ -8,4 +14,17 @@
 
 #twautocomplete_possibilities li.twautocomplete_zebra_dark {
   background-color:rgb(220,255,250);
+}
+
+#twautocomplete_possibilities li.twautocomplete_selected {
+  background-color:rgb(160,160,160);
+}
+
+
+#twautocomplete_possibilities:hover li:hover {
+  background-color:rgb(120,120,120) !important;
+}
+
+#twautocomplete_possibilities:hover li.twautocomplete_selected {
+  background-color: rgb(248,255,255);
 }
