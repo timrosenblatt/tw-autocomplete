@@ -1,0 +1,11 @@
+#twautocomplete_possibilities li.twautocomplete_selected {
+  background-color:rgb(120,120,120) !important;
+}
+
+#twautocomplete_possibilities li.twautocomplete_zebra_light {
+  background-color:rgb(255,255,255);
+}
+
+#twautocomplete_possibilities li.twautocomplete_zebra_dark {
+  background-color:rgb(220,255,250);
+}

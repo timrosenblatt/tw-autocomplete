@@ -75,6 +75,7 @@ var Twautocomplete = {
       }
       
       if(Twautocomplete.isTwitterURL(doc.location.toString()) && !Twautocomplete.areUserFriendsLoaded()) {
+        Twautocomplete.addCSSToPage(doc);
         Twautocomplete.getUserFriends(1);
       }
       else if(Twautocomplete.isTwitterURL(doc.location.toString())) {
@@ -84,13 +85,25 @@ var Twautocomplete = {
     }
   },
   
+  /* 
+   * addCSSToPage needs to get called once per page load
+   */
+  addCSSToPage: function(doc) {
+    var link = doc.createElement('link');
+    link.setAttribute('type', 'text/css');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', 'chrome://twautocomplete-public/content/styles/twautocomplete.css')
+    
+    doc.getElementsByTagName('head')[0].appendChild(link);
+  },
+  
   setListenersOnTextarea: function () {
     Twautocomplete.debug("OK, About to attach event listener");
     var doc = gBrowser.selectedBrowser.contentDocument;
     doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
     doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
     
-    gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad);
+    gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad, true);
     
     Twautocomplete.debug("OK, event listeners attached");
   },
@@ -100,7 +113,7 @@ var Twautocomplete = {
     var items = doc.getElementById('twautocomplete_possibilities').childNodes;
     
     for(var i=0; i < items.length; i++) {
-      if(items[i].getAttribute('style') != '') {
+      if(items[i].getAttribute('class').indexOf('twautocomplete_selected') != -1) {
         return i;
       }
     }
@@ -113,12 +126,18 @@ var Twautocomplete = {
     var items = doc.getElementById('twautocomplete_possibilities').childNodes;
     
     for(var i=0; i < items.length; i++) {
-      items[i].setAttribute('style', '');
-      Twautocomplete.debug(items[i].getAttribute('style'));
+      items[i].setAttribute('class', Twautocomplete.getZebraClassByIndex(i));
     }
     
-    items[index].setAttribute('style','background-color:#ddd;');
+    items[index].setAttribute('class','twautocomplete_selected');
     Twautocomplete.debug("setSelectedIndex finished");
+  },
+  
+  /*
+   * This returns the base class for the zebra stripes
+   */
+  getZebraClassByIndex: function (index) {
+    return index % 2 == 0 ? 'twautocomplete_zebra_light' : 'twautocomplete_zebra_dark';
   },
   
   fillFromIndex: function(index) {
@@ -126,13 +145,11 @@ var Twautocomplete = {
     var items = doc.getElementById('twautocomplete_possibilities').childNodes;
     
     for(var i=0; i < items.length; i++) {
-      if(items[i].getAttribute('style') != '') {
+      if(items[i].getAttribute('class').indexOf('twautocomplete_selected') != -1) {
         var e = doc.createEvent('MouseEvents');
         e.initEvent('click', true, true)
         items[i].dispatchEvent(e);
-        
-        
-//        doc.getElementById('status').value += items[i].getAttribute('screen_name') + ' '
+
         return true;
       }
     }
@@ -140,6 +157,7 @@ var Twautocomplete = {
   
   onKeyDown: function(event) {
     Twautocomplete.debug("-- onKeyDown --");
+    // Add ESC keycode
     var TAB = 9;
     var ENTER = 13;
     var ARROW_UP = 38;
@@ -414,10 +432,10 @@ var Twautocomplete = {
       li = doc.createElement('li');
       
       if(i==0) {
-        li.setAttribute('style', 'background-color:#ddd;');
+        li.setAttribute('class', Twautocomplete.getZebraClassByIndex(i) + ' twautocomplete_selected');
       }
       else {
-        li.setAttribute('style', '');
+        li.setAttribute('class', Twautocomplete.getZebraClassByIndex(i));
       }
       
       if(possibilities[i].screen_name_normalized.substr(0,partial_name.length) == partial_name) {
@@ -439,13 +457,15 @@ var Twautocomplete = {
         }
       }
       
-      li.innerHTML = "<img style='height:24px;width:24px;position:relative;top:3px;left:4px;' src='"+possibilities[i].profile_image_url+"' /><span style='position:relative;top:-4px;left:8px;'>" + li.innerHTML + "</span>";
+      li.innerHTML = "<img style='height:24px;width:24px;margin-top:3px;margin-left:6px;float:left;' src='"+possibilities[i].profile_image_url+"' /><span style='display:block;margin:5px 6px 8px 40px;'>" + li.innerHTML + "</span>";
       
       //li.innerHTML = "<span style='margin:4px;'>" + li.innerHTML + "</span>";
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
-      li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' ";');
+      li.setAttribute('onclick', '$("status").value=$("status").value.substr(0,$("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);');
+      
+      
       ul.appendChild(li);
     }
     
