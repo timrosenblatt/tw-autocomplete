@@ -1,12 +1,18 @@
 <?xml version="1.0"?>
    <!-- Hi! And, thanks for checking out my code. What do you think?
-        Drop me a line: tim@timrosenblatt.com -->
+        Drop me a line: tim@timrosenblatt.com 
+        
+        This whole extension is Copyright by Tim Rosenblatt,
+        unless specified otherwise. There's a few bits of
+        code that were open source, and I'm going to release
+        this eventually, just as soon as I can figure out which
+        license. Until then, this stuff is all mine. -->
   <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
        xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>twautocomplete-extension@timrosenblatt.com</em:id>
-    <em:version>1.0</em:version>
+    <em:version>1.1</em:version>
     <em:type>2</em:type>
 
     <!-- Target Application this extension can install into,
@@ -15,7 +21,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>1.5</em:minVersion>
-        <em:maxVersion>3.9</em:maxVersion>
+        <em:maxVersion>3.1a2pre</em:maxVersion>
       </Description>
     </em:targetApplication>
 

@@ -80,14 +80,24 @@ var Twautocomplete = {
   },
   
   getSelectedIndex: function () {
-    var doc = gBrowser.selectedBrowser.contentDocument;
-    var items = doc.getElementById('twautocomplete_possibilities').childNodes;
+    try {
+      var doc = gBrowser.selectedBrowser.contentDocument;
+      var items = doc.getElementById('twautocomplete_possibilities').childNodes;
+    }
+    catch (e) {
+      Twautocomplete.debug("getSelectedIndex died");
+      return false;
+    }
     
     for(var i=0; i < items.length; i++) {
       if(items[i].getAttribute('class').indexOf('twautocomplete_selected') != -1) {
+        Twautocomplete.debug("getSelectedIndex found index "+i);
         return i;
       }
     }
+    
+    Twautocomplete.debug("getSelectedIndex fallthrough fail");
+    return false;
   },
   
   setSelectedIndex: function (index) {
@@ -138,6 +148,11 @@ var Twautocomplete = {
       Twautocomplete.debug("tab or enter");
      
       var selected = Twautocomplete.getSelectedIndex();
+      if(isNaN(selected) && selected == false) {
+        Twautocomplete.debug("abort -- no dropdown present");
+        return;
+      }
+      
       Twautocomplete.fillFromIndex(selected);
       
      
@@ -150,6 +165,11 @@ var Twautocomplete = {
     else if(event.keyCode == ARROW_UP) {
       var selected = Twautocomplete.getSelectedIndex();
       Twautocomplete.debug("up -- selected is "+selected);
+      
+      if(isNaN(selected) && selected == false) {
+        Twautocomplete.debug("abort -- no dropdown present");
+        return;
+      }
       
       if(selected > 0) {
         Twautocomplete.setSelectedIndex(selected-1);
@@ -166,6 +186,12 @@ var Twautocomplete = {
       var items = gBrowser.selectedBrowser.contentDocument.getElementById('twautocomplete_possibilities').childNodes;
       var selected = Twautocomplete.getSelectedIndex();
       Twautocomplete.debug("down selected is "+selected + " and items.length is "+items.length);
+      
+      if(isNaN(selected) && selected == false) {
+        Twautocomplete.debug("abort -- no dropdown present");
+        return;
+      }
+      Twautocomplete.debug("continuing");
       
       if(selected < items.length-1) {
         Twautocomplete.debug('about to set index');
@@ -240,7 +266,7 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
-    return;
+//    return;
     
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
