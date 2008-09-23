@@ -240,7 +240,7 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
-    //return;
+    return;
     
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
@@ -427,7 +427,6 @@ var Twautocomplete = {
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
-//      li.setAttribute('onclick', '$("status").value  = $("status").value.substr(0, $("status").value.length-'+partial_name.length+') + "'+possibilities[i].screen_name+' "; var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
       li.setAttribute('onclick', '$("status").value  = $("status").value.substr(0, $("status").selectionStart - '+partial_name.length+') + "'+possibilities[i].screen_name+' " + $("status").value.substr($("status").selectionStart); var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
       
       
