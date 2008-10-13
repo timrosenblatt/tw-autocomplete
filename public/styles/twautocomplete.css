@@ -8,6 +8,15 @@
   cursor:pointer;
 }
 
+#twautocomplete_possibilities li span {
+  line-height:20px;
+  display:block;
+  /*margin:5px 6px 8px 40px; WTF Did Firefox change their CSS? */
+  margin:0px 6px 0px 40px;
+  padding-top:4px;
+  height:26px;
+}
+
 #twautocomplete_possibilities li.twautocomplete_zebra_light {
   background-color:rgb(255,255,255);
 }

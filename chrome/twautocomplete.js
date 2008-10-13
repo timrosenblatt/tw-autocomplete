@@ -62,6 +62,7 @@ var Twautocomplete = {
     try {
       var doc = gBrowser.selectedBrowser.contentDocument;
       doc.getElementById('status').addEventListener("keyup", Twautocomplete.monitorWindow, false); 
+      doc.getElementById('status').addEventListener("click", Twautocomplete.monitorWindow, false); 
       doc.getElementById('status').addEventListener("keypress", Twautocomplete.onKeyDown, false); 
     
       gBrowser.removeEventListener("focus", Twautocomplete.onPageLoad, true);
@@ -450,7 +451,7 @@ var Twautocomplete = {
         }
       }
       
-      li.innerHTML = "<img style='height:24px;width:24px;margin-top:3px;margin-left:6px;float:left;' src='"+possibilities[i].profile_image_url+"' /><span style='display:block;margin:5px 6px 8px 40px;'>" + li.innerHTML + "</span>";
+      li.innerHTML = "<img style='height:24px;width:24px;margin-top:3px;margin-left:6px;float:left;' src='"+possibilities[i].profile_image_url+"' /><span style=''>" + li.innerHTML + "</span>";
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
