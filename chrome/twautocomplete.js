@@ -455,7 +455,7 @@ var Twautocomplete = {
       
       li.setAttribute('screen_name', possibilities[i].screen_name);
       
-      li.setAttribute('onclick', '$("status").value  = $("status").value.substr(0, $("status").selectionStart - '+partial_name.length+') + "'+possibilities[i].screen_name+' " + $("status").value.substr($("status").selectionStart); var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);$("status").dispatchEvent(e);$("status").focus();');
+      li.setAttribute('onclick', 'document.getElementById("status").value  = document.getElementById("status").value.substr(0, document.getElementById("status").selectionStart - '+partial_name.length+') + "'+possibilities[i].screen_name+' " + document.getElementById("status").value.substr(document.getElementById("status").selectionStart); var e = document.createEvent("KeyboardEvent"); e.initKeyEvent("keyup", true, true, null, false, false, false, false, 32, 0);document.getElementById("status").dispatchEvent(e);document.getElementById("status").focus();');
       
       
       ul.appendChild(li);
