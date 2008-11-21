@@ -302,7 +302,7 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
-    //return;
+    return;
     
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
