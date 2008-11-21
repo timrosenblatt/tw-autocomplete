@@ -81,7 +81,9 @@ var Twautocomplete = {
     var target = e.originalTarget;
     Twautocomplete.debug(target);
     if((target.innerHTML && target.innerHTML == "follow") || (target.value && target.value == "Follow")) {
-     Twautocomplete.debug("Someone new is being followed. Stalker!"); setTimeout("Twautocomplete.flushUserFriendCache();Twautocomplete.getUserFriends(1);",2000);
+      Twautocomplete.debug("Someone new is being followed. Stalker!");
+      Twautocomplete.flushUserFriendCache();
+      setTimeout("Twautocomplete.getUserFriends(1);",2000);
     }
     else {
       // if the popup was active and someone clicks outside of it,
