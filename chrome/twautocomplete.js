@@ -40,6 +40,7 @@ var Twautocomplete = {
       else if(Twautocomplete.isTwitterURL(doc.location.toString())) {
         Twautocomplete.addCSSToPage(doc);
         Twautocomplete.setListenersOnTextarea();
+        Twautocomplete.setListenersForMouse();
       }
     }
   },
@@ -54,6 +55,39 @@ var Twautocomplete = {
     link.setAttribute('href', 'chrome://twautocomplete-public/content/styles/twautocomplete.css')
     
     doc.getElementsByTagName('head')[0].appendChild(link);
+  },
+
+  /*
+   * setListenersForFollows monitors clicks to see if the user is
+   * clicking a "follow" button, in which case, we will have to
+   * update their list
+   */
+  setListenersForMouse: function () {
+    Twautocomplete.debug("OK, About to attach follow event listener");
+    
+    try {
+      var doc = gBrowser.selectedBrowser.contentDocument;
+      doc.addEventListener("mouseup", Twautocomplete.wasMouseup, false); 
+    }
+    catch(e) {
+      return false;
+    }
+    
+    Twautocomplete.debug("OK, follow event listeners attached");
+  },
+  
+  wasMouseup: function(e) {
+    Twautocomplete.debug("mouseup detected -- was it a follow?");
+    var target = e.originalTarget;
+    Twautocomplete.debug(target);
+    if((target.innerHTML && target.innerHTML == "follow") || (target.value && target.value == "Follow")) {
+     Twautocomplete.debug("Someone new is being followed. Stalker!"); setTimeout("Twautocomplete.flushUserFriendCache();Twautocomplete.getUserFriends(1);",2000);
+    }
+    else {
+      // if the popup was active and someone clicks outside of it,
+      // we should remove the menu
+      Twautocomplete.showMatches([], '');
+    }
   },
   
   setListenersOnTextarea: function () {
@@ -268,7 +302,7 @@ var Twautocomplete = {
   },
   
   debug: function(message) {
-    return;
+    //return;
     
     var now = new Date(); // .format relies on the date_format.js; not part of ECMAScript
     Firebug.Console.log(now.format('h:MM:ss TT') + ' ' + message);
@@ -412,12 +446,12 @@ var Twautocomplete = {
         Twautocomplete.debug("removing old twautocomplete_possibilities");
         doc.getElementById('twautocomplete_possibilities').parentNode.
                   removeChild(doc.getElementById('twautocomplete_possibilities'));
-        if(possibilities.length == 0) {
-          return;
-        }
       }
     }
-    
+    if(possibilities.length == 0) {
+      return false;
+    }
+//    Twautocomplete.debug(possibilities.length);
     Twautocomplete.debug("creating the ul");
     
     var li, ul = doc.createElement('ul');
@@ -465,7 +499,10 @@ var Twautocomplete = {
     ul.setAttribute('id', 'twautocomplete_possibilities');
     ul.setAttribute('style', 'text-align:left;position:absolute;background-color:#fff;left:20px;border:1px solid #000;');
     
-    doc.getElementById('status').parentNode.insertBefore(ul, doc.getElementById('status').nextSibling);
+    try {
+      doc.getElementById('status').parentNode.insertBefore(ul, doc.getElementById('status').nextSibling);
+    }
+    catch(e) {}
   },
   
 }
