@@ -85,11 +85,12 @@ var Twautocomplete = {
       Twautocomplete.flushUserFriendCache();
       setTimeout("Twautocomplete.getUserFriends(1);",2000);
     }
-    else {
+    else if(e.target.id != 'status'){
       // if the popup was active and someone clicks outside of it,
       // we should remove the menu
       Twautocomplete.showMatches([], '');
     }
+    return true;
   },
   
   setListenersOnTextarea: function () {
